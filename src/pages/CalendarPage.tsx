@@ -11,26 +11,13 @@ import {
   startOfWeek,
   endOfWeek,
 } from 'date-fns';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Box, Card, CardContent, IconButton, Typography } from '@mui/material';
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import { MobileLayout } from '@/components/layout/MobileLayout';
 import { useCycleStore } from '@/hooks/useCycleStore';
-import { cn } from '@/lib/utils';
+import { cyclePhaseColors } from '@/theme/muiTheme';
 import type { CyclePhase } from '@/types/cycle';
-
-const phaseColors: Record<CyclePhase, string> = {
-  menstruation: 'bg-primary',
-  follicular: 'bg-chart-3',
-  ovulation: 'bg-chart-2',
-  luteal: 'bg-chart-4',
-};
-
-const phaseBgColors: Record<CyclePhase, string> = {
-  menstruation: 'bg-primary/20',
-  follicular: 'bg-chart-3/20',
-  ovulation: 'bg-chart-2/20',
-  luteal: 'bg-chart-4/20',
-};
 
 export default function CalendarPage() {
   const [currentMonth, setCurrentMonth] = useState(new Date());
@@ -51,91 +38,135 @@ export default function CalendarPage() {
 
   const getDayStatus = (date: Date) => {
     const dateStr = format(date, 'yyyy-MM-dd');
-    const log = dayLogs.find(l => l.date === dateStr);
+    const log = dayLogs.find((l) => l.date === dateStr);
     const phase = getPhaseForDate(dateStr);
     return { log, phase };
   };
 
+  const phaseLabels: Record<CyclePhase, string> = {
+    menstruation: 'Period',
+    follicular: 'Follicular',
+    ovulation: 'Ovulation',
+    luteal: 'Luteal',
+  };
+
   return (
     <MobileLayout>
-      <div className="px-4 pt-6 pb-6">
+      <Box sx={{ px: 2, pt: 3, pb: 3 }}>
         {/* Month Navigation */}
-        <div className="flex items-center justify-between mb-6">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}
-          >
-            <ChevronLeft className="w-5 h-5" />
-          </Button>
-          <h2 className="text-xl font-bold text-foreground">
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            mb: 3,
+          }}
+        >
+          <IconButton onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}>
+            <ChevronLeftIcon />
+          </IconButton>
+          <Typography variant="h5" fontWeight={700} color="text.primary">
             {format(currentMonth, 'MMMM yyyy')}
-          </h2>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}
-          >
-            <ChevronRight className="w-5 h-5" />
-          </Button>
-        </div>
+          </Typography>
+          <IconButton onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}>
+            <ChevronRightIcon />
+          </IconButton>
+        </Box>
 
         {/* Week Days Header */}
-        <div className="grid grid-cols-7 gap-1 mb-2">
+        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', mb: 1 }}>
           {weekDays.map((day) => (
-            <div
+            <Typography
               key={day}
-              className="text-center text-xs font-medium text-muted-foreground py-2"
+              variant="caption"
+              color="text.secondary"
+              fontWeight={500}
+              textAlign="center"
+              display="block"
             >
               {day}
-            </div>
+            </Typography>
           ))}
-        </div>
+        </Box>
 
         {/* Calendar Grid */}
-        <div className="grid grid-cols-7 gap-1">
+        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 0.5 }}>
           {days.map((day) => {
             const { log, phase } = getDayStatus(day);
             const isCurrentMonth = isSameMonth(day, currentMonth);
             const isPeriodDay = log?.isPeriod;
 
             return (
-              <button
+              <Box
                 key={day.toISOString()}
-                className={cn(
-                  'aspect-square flex flex-col items-center justify-center rounded-xl text-sm transition-all',
-                  !isCurrentMonth && 'opacity-30',
-                  isToday(day) && 'ring-2 ring-primary ring-offset-2 ring-offset-background',
-                  isPeriodDay ? phaseColors[phase] : phaseBgColors[phase]
-                )}
+                sx={{
+                  aspectRatio: '1',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  borderRadius: 2,
+                  opacity: isCurrentMonth ? 1 : 0.3,
+                  bgcolor: isPeriodDay
+                    ? cyclePhaseColors[phase]
+                    : `${cyclePhaseColors[phase]}20`,
+                  border: isToday(day) ? 2 : 0,
+                  borderColor: 'primary.main',
+                  transition: 'all 0.2s',
+                  cursor: 'pointer',
+                  '&:hover': {
+                    transform: 'scale(1.05)',
+                  },
+                }}
               >
-                <span className={cn(
-                  'font-medium',
-                  isPeriodDay ? 'text-primary-foreground' : 'text-foreground'
-                )}>
+                <Typography
+                  variant="body2"
+                  fontWeight={500}
+                  sx={{
+                    color: isPeriodDay ? '#fff' : 'text.primary',
+                  }}
+                >
                   {format(day, 'd')}
-                </span>
+                </Typography>
                 {isPeriodDay && (
-                  <span className="text-[10px] text-primary-foreground/80">•</span>
+                  <Typography
+                    variant="caption"
+                    sx={{ color: 'rgba(255,255,255,0.8)', fontSize: 8 }}
+                  >
+                    •
+                  </Typography>
                 )}
-              </button>
+              </Box>
             );
           })}
-        </div>
+        </Box>
 
         {/* Legend */}
-        <div className="mt-6 p-4 bg-card rounded-2xl">
-          <h3 className="font-semibold text-foreground mb-3">Cycle Phases</h3>
-          <div className="grid grid-cols-2 gap-3">
-            {Object.entries(phaseColors).map(([phase, colorClass]) => (
-              <div key={phase} className="flex items-center gap-2">
-                <div className={cn('w-3 h-3 rounded-full', colorClass)} />
-                <span className="text-sm text-muted-foreground capitalize">{phase}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
+        <Card sx={{ mt: 3 }}>
+          <CardContent sx={{ p: 2 }}>
+            <Typography variant="h6" fontWeight={600} color="text.primary" sx={{ mb: 2 }}>
+              Cycle Phases
+            </Typography>
+            <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 1.5 }}>
+              {(Object.keys(cyclePhaseColors) as CyclePhase[]).map((phase) => (
+                <Box key={phase} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Box
+                    sx={{
+                      width: 12,
+                      height: 12,
+                      borderRadius: '50%',
+                      bgcolor: cyclePhaseColors[phase],
+                    }}
+                  />
+                  <Typography variant="body2" color="text.secondary" textTransform="capitalize">
+                    {phaseLabels[phase]}
+                  </Typography>
+                </Box>
+              ))}
+            </Box>
+          </CardContent>
+        </Card>
+      </Box>
     </MobileLayout>
   );
 }

@@ -1,55 +1,57 @@
-import { Droplets, Check } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Box, Button } from '@mui/material';
+import WaterDropIcon from '@mui/icons-material/WaterDrop';
+import CheckIcon from '@mui/icons-material/Check';
 import { useCycleStore } from '@/hooks/useCycleStore';
 import { format } from 'date-fns';
-import { toast } from 'sonner';
+import { useSnackbar } from 'notistack';
+import { Typography } from '@mui/material';
 
 export function QuickActions() {
   const { startPeriod, endPeriod, dayLogs, cycles } = useCycleStore();
+  const { enqueueSnackbar } = useSnackbar();
   const today = format(new Date(), 'yyyy-MM-dd');
-  const todayLog = dayLogs.find(l => l.date === today);
+  const todayLog = dayLogs.find((l) => l.date === today);
   const currentCycle = cycles[cycles.length - 1];
   const isPeriodActive = currentCycle && !currentCycle.endDate;
 
   const handlePeriodToggle = () => {
     if (isPeriodActive) {
       endPeriod();
-      toast.success('Period ended', {
-        description: 'Take care of yourself! 💕',
-      });
+      enqueueSnackbar('Period ended - Take care of yourself! 💕', { variant: 'success' });
     } else {
       startPeriod();
-      toast.success('Period started', {
-        description: 'Tracking your cycle 🌸',
-      });
+      enqueueSnackbar('Period started - Tracking your cycle 🌸', { variant: 'success' });
     }
   };
 
   return (
-    <div className="px-4 py-6">
+    <Box sx={{ px: 2, py: 3 }}>
       <Button
         onClick={handlePeriodToggle}
-        className="w-full h-14 text-lg font-semibold shadow-lg"
-        variant={isPeriodActive ? 'secondary' : 'default'}
+        variant="contained"
+        color={isPeriodActive ? 'secondary' : 'primary'}
+        size="large"
+        fullWidth
+        startIcon={isPeriodActive ? <CheckIcon /> : <WaterDropIcon />}
+        sx={{
+          height: 56,
+          fontSize: '1.1rem',
+          fontWeight: 600,
+        }}
       >
-        {isPeriodActive ? (
-          <>
-            <Check className="w-5 h-5 mr-2" />
-            Period Ended
-          </>
-        ) : (
-          <>
-            <Droplets className="w-5 h-5 mr-2" />
-            Period Started
-          </>
-        )}
+        {isPeriodActive ? 'Period Ended' : 'Period Started'}
       </Button>
 
       {isPeriodActive && (
-        <p className="text-center text-sm text-muted-foreground mt-3">
+        <Typography
+          variant="body2"
+          color="text.secondary"
+          textAlign="center"
+          sx={{ mt: 1.5 }}
+        >
           Tap when your period ends to log the duration
-        </p>
+        </Typography>
       )}
-    </div>
+    </Box>
   );
 }

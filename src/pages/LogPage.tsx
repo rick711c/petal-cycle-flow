@@ -1,13 +1,19 @@
 import { useState } from 'react';
 import { format } from 'date-fns';
-import { Check, Droplets } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Textarea } from '@/components/ui/textarea';
+import {
+  Box,
+  Button,
+  Card,
+  CardContent,
+  TextField,
+  Typography,
+  Chip,
+} from '@mui/material';
+import WaterDropIcon from '@mui/icons-material/WaterDrop';
+import CheckIcon from '@mui/icons-material/Check';
 import { MobileLayout } from '@/components/layout/MobileLayout';
 import { useCycleStore } from '@/hooks/useCycleStore';
-import { cn } from '@/lib/utils';
-import { toast } from 'sonner';
+import { useSnackbar } from 'notistack';
 import type { FlowIntensity, Mood, PhysicalSymptom, DayLog } from '@/types/cycle';
 
 const flowOptions: { id: FlowIntensity; label: string; icon: string }[] = [
@@ -40,6 +46,7 @@ const symptomOptions: { id: PhysicalSymptom; label: string; emoji: string }[] = 
 export default function LogPage() {
   const today = format(new Date(), 'yyyy-MM-dd');
   const { getDayLog, addDayLog } = useCycleStore();
+  const { enqueueSnackbar } = useSnackbar();
   const existingLog = getDayLog(today);
 
   const [log, setLog] = useState<DayLog>(
@@ -72,31 +79,33 @@ export default function LogPage() {
 
   const handleSave = () => {
     addDayLog(log);
-    toast.success('Log saved!', {
-      description: 'Your daily log has been recorded.',
-    });
+    enqueueSnackbar('Log saved! Your daily log has been recorded.', { variant: 'success' });
   };
 
   return (
     <MobileLayout>
-      <div className="px-4 pt-6 pb-6 space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Log Today</h1>
-          <p className="text-muted-foreground">
+      <Box sx={{ px: 2, pt: 3, pb: 3 }}>
+        <Box sx={{ mb: 3 }}>
+          <Typography variant="h5" fontWeight={700} color="text.primary">
+            Log Today
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
             {format(new Date(), 'EEEE, MMMM d')}
-          </p>
-        </div>
+          </Typography>
+        </Box>
 
         {/* Flow Section */}
-        <Card className="border-0 shadow-sm">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-2 mb-4">
-              <Droplets className="w-5 h-5 text-primary" />
-              <h3 className="font-semibold text-foreground">Flow</h3>
-            </div>
-            <div className="grid grid-cols-4 gap-2">
+        <Card sx={{ mb: 2 }}>
+          <CardContent sx={{ p: 2 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+              <WaterDropIcon sx={{ color: 'primary.main', fontSize: 20 }} />
+              <Typography variant="h6" fontWeight={600} color="text.primary">
+                Flow
+              </Typography>
+            </Box>
+            <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 1 }}>
               {flowOptions.map((option) => (
-                <button
+                <Box
                   key={option.id}
                   onClick={() =>
                     setLog((prev) => ({
@@ -105,90 +114,129 @@ export default function LogPage() {
                       flowIntensity: prev.flowIntensity === option.id ? undefined : option.id,
                     }))
                   }
-                  className={cn(
-                    'flex flex-col items-center p-3 rounded-xl transition-all',
-                    log.flowIntensity === option.id
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-muted/50 hover:bg-muted'
-                  )}
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    p: 1.5,
+                    borderRadius: 2,
+                    cursor: 'pointer',
+                    bgcolor: log.flowIntensity === option.id ? 'primary.main' : 'action.hover',
+                    color: log.flowIntensity === option.id ? 'primary.contrastText' : 'text.primary',
+                    transition: 'all 0.2s',
+                  }}
                 >
-                  <span className="text-lg">{option.icon}</span>
-                  <span className="text-xs mt-1 font-medium">{option.label}</span>
-                </button>
+                  <Typography variant="body1">{option.icon}</Typography>
+                  <Typography variant="caption" fontWeight={500} sx={{ mt: 0.5 }}>
+                    {option.label}
+                  </Typography>
+                </Box>
               ))}
-            </div>
+            </Box>
           </CardContent>
         </Card>
 
         {/* Mood Section */}
-        <Card className="border-0 shadow-sm">
-          <CardContent className="p-4">
-            <h3 className="font-semibold text-foreground mb-4">How are you feeling?</h3>
-            <div className="grid grid-cols-3 gap-2">
+        <Card sx={{ mb: 2 }}>
+          <CardContent sx={{ p: 2 }}>
+            <Typography variant="h6" fontWeight={600} color="text.primary" sx={{ mb: 2 }}>
+              How are you feeling?
+            </Typography>
+            <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 1 }}>
               {moodOptions.map((option) => (
-                <button
+                <Box
                   key={option.id}
                   onClick={() => toggleMood(option.id)}
-                  className={cn(
-                    'flex flex-col items-center p-3 rounded-xl transition-all',
-                    log.moods.includes(option.id)
-                      ? 'bg-accent text-accent-foreground ring-2 ring-primary'
-                      : 'bg-muted/50 hover:bg-muted'
-                  )}
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    p: 1.5,
+                    borderRadius: 2,
+                    cursor: 'pointer',
+                    bgcolor: log.moods.includes(option.id) ? 'primary.light' : 'action.hover',
+                    border: log.moods.includes(option.id) ? 2 : 0,
+                    borderColor: 'primary.main',
+                    transition: 'all 0.2s',
+                  }}
                 >
-                  <span className="text-2xl">{option.emoji}</span>
-                  <span className="text-xs mt-1 font-medium">{option.label}</span>
-                </button>
+                  <Typography variant="h5">{option.emoji}</Typography>
+                  <Typography variant="caption" fontWeight={500} sx={{ mt: 0.5 }}>
+                    {option.label}
+                  </Typography>
+                </Box>
               ))}
-            </div>
+            </Box>
           </CardContent>
         </Card>
 
         {/* Symptoms Section */}
-        <Card className="border-0 shadow-sm">
-          <CardContent className="p-4">
-            <h3 className="font-semibold text-foreground mb-4">Symptoms</h3>
-            <div className="grid grid-cols-4 gap-2">
+        <Card sx={{ mb: 2 }}>
+          <CardContent sx={{ p: 2 }}>
+            <Typography variant="h6" fontWeight={600} color="text.primary" sx={{ mb: 2 }}>
+              Symptoms
+            </Typography>
+            <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 1 }}>
               {symptomOptions.map((option) => (
-                <button
+                <Box
                   key={option.id}
                   onClick={() => toggleSymptom(option.id)}
-                  className={cn(
-                    'flex flex-col items-center p-2 rounded-xl transition-all',
-                    log.symptoms.includes(option.id)
-                      ? 'bg-accent text-accent-foreground ring-2 ring-primary'
-                      : 'bg-muted/50 hover:bg-muted'
-                  )}
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    p: 1,
+                    borderRadius: 2,
+                    cursor: 'pointer',
+                    bgcolor: log.symptoms.includes(option.id) ? 'primary.light' : 'action.hover',
+                    border: log.symptoms.includes(option.id) ? 2 : 0,
+                    borderColor: 'primary.main',
+                    transition: 'all 0.2s',
+                  }}
                 >
-                  <span className="text-xl">{option.emoji}</span>
-                  <span className="text-[10px] mt-1 font-medium text-center leading-tight">
+                  <Typography variant="h6">{option.emoji}</Typography>
+                  <Typography
+                    variant="caption"
+                    fontWeight={500}
+                    sx={{ mt: 0.5, fontSize: 10, textAlign: 'center', lineHeight: 1.2 }}
+                  >
                     {option.label}
-                  </span>
-                </button>
+                  </Typography>
+                </Box>
               ))}
-            </div>
+            </Box>
           </CardContent>
         </Card>
 
         {/* Notes Section */}
-        <Card className="border-0 shadow-sm">
-          <CardContent className="p-4">
-            <h3 className="font-semibold text-foreground mb-3">Notes</h3>
-            <Textarea
+        <Card sx={{ mb: 3 }}>
+          <CardContent sx={{ p: 2 }}>
+            <Typography variant="h6" fontWeight={600} color="text.primary" sx={{ mb: 1.5 }}>
+              Notes
+            </Typography>
+            <TextField
               placeholder="How was your day? Any other symptoms or thoughts..."
               value={log.notes}
               onChange={(e) => setLog((prev) => ({ ...prev, notes: e.target.value }))}
-              className="min-h-[100px] resize-none"
+              multiline
+              rows={4}
+              fullWidth
             />
           </CardContent>
         </Card>
 
         {/* Save Button */}
-        <Button onClick={handleSave} className="w-full h-14 text-lg font-semibold">
-          <Check className="w-5 h-5 mr-2" />
+        <Button
+          onClick={handleSave}
+          variant="contained"
+          size="large"
+          fullWidth
+          startIcon={<CheckIcon />}
+          sx={{ height: 56, fontSize: '1.1rem', fontWeight: 600 }}
+        >
           Save Log
         </Button>
-      </div>
+      </Box>
     </MobileLayout>
   );
 }

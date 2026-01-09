@@ -1,4 +1,5 @@
-import { Flower2 } from 'lucide-react';
+import { Box, Typography, Avatar } from '@mui/material';
+import LocalFloristIcon from '@mui/icons-material/LocalFlorist';
 import { MobileLayout } from '@/components/layout/MobileLayout';
 import { CycleRing } from '@/components/cycle/CycleRing';
 import { QuickActions } from '@/components/cycle/QuickActions';
@@ -18,34 +19,47 @@ export default function Home() {
 
   return (
     <MobileLayout>
-      <div className="pb-6">
+      <Box sx={{ pb: 3 }}>
         {/* Header */}
-        <div className="px-4 pt-6 pb-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Flower2 className="w-7 h-7 text-primary" />
-            <span className="text-xl font-bold text-foreground">Flora</span>
-          </div>
-          <div className="text-right">
-            <p className="text-sm text-muted-foreground">Today</p>
-            <p className="text-sm font-medium text-foreground">
-              {new Date().toLocaleDateString('en-US', { 
-                weekday: 'short', 
-                month: 'short', 
-                day: 'numeric' 
+        <Box
+          sx={{
+            px: 2,
+            pt: 3,
+            pb: 2,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+          }}
+        >
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <LocalFloristIcon sx={{ fontSize: 28, color: 'primary.main' }} />
+            <Typography variant="h5" fontWeight={700} color="text.primary">
+              Flora
+            </Typography>
+          </Box>
+          <Box sx={{ textAlign: 'right' }}>
+            <Typography variant="body2" color="text.secondary">
+              Today
+            </Typography>
+            <Typography variant="body2" fontWeight={500} color="text.primary">
+              {new Date().toLocaleDateString('en-US', {
+                weekday: 'short',
+                month: 'short',
+                day: 'numeric',
               })}
-            </p>
-          </div>
-        </div>
+            </Typography>
+          </Box>
+        </Box>
 
         {/* Cycle Ring */}
-        <div className="py-6">
+        <Box sx={{ py: 3 }}>
           <CycleRing
             dayInCycle={stats.dayInCycle}
             cycleLength={stats.averageCycleLength}
             currentPhase={stats.currentPhase}
             periodLength={stats.averagePeriodLength}
           />
-        </div>
+        </Box>
 
         {/* Quick Actions */}
         <QuickActions />
@@ -54,10 +68,10 @@ export default function Home() {
         <UpcomingEvents stats={stats} />
 
         {/* Daily Insight */}
-        <div className="mt-6">
+        <Box sx={{ mt: 3 }}>
           <DailyInsight phase={stats.currentPhase} dayInCycle={stats.dayInCycle} />
-        </div>
-      </div>
+        </Box>
+      </Box>
     </MobileLayout>
   );
 }

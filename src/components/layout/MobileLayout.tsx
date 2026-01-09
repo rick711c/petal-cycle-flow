@@ -1,4 +1,5 @@
 import { ReactNode } from 'react';
+import { Box, Container } from '@mui/material';
 import { BottomNav } from './BottomNav';
 
 interface MobileLayoutProps {
@@ -8,11 +9,28 @@ interface MobileLayoutProps {
 
 export function MobileLayout({ children, showNav = true }: MobileLayoutProps) {
   return (
-    <div className="min-h-screen bg-background flex flex-col max-w-md mx-auto relative">
-      <main className={`flex-1 overflow-auto ${showNav ? 'pb-20' : ''}`}>
+    <Box
+      sx={{
+        minHeight: '100vh',
+        bgcolor: 'background.default',
+        display: 'flex',
+        flexDirection: 'column',
+        maxWidth: 'md',
+        mx: 'auto',
+        position: 'relative',
+      }}
+    >
+      <Box
+        component="main"
+        sx={{
+          flex: 1,
+          overflow: 'auto',
+          pb: showNav ? '80px' : 0,
+        }}
+      >
         {children}
-      </main>
+      </Box>
       {showNav && <BottomNav />}
-    </div>
+    </Box>
   );
 }

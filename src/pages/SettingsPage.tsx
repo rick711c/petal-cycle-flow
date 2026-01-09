@@ -1,19 +1,25 @@
-import { Bell, Lock, Download, Trash2, ChevronRight, Moon, Flower2 } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Switch } from '@/components/ui/switch';
+import { Box, Card, CardContent, Typography, Switch, Divider, Avatar } from '@mui/material';
+import NotificationsIcon from '@mui/icons-material/Notifications';
+import LockIcon from '@mui/icons-material/Lock';
+import DarkModeIcon from '@mui/icons-material/DarkMode';
+import DownloadIcon from '@mui/icons-material/Download';
+import DeleteIcon from '@mui/icons-material/Delete';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import LocalFloristIcon from '@mui/icons-material/LocalFlorist';
 import { MobileLayout } from '@/components/layout/MobileLayout';
 import { useCycleStore } from '@/hooks/useCycleStore';
-import { toast } from 'sonner';
+import { useSnackbar } from 'notistack';
 import { useNavigate } from 'react-router-dom';
 
 export default function SettingsPage() {
   const navigate = useNavigate();
+  const { enqueueSnackbar } = useSnackbar();
   const { settings, updateSettings, setOnboarded } = useCycleStore();
 
   const handleReset = () => {
     localStorage.clear();
     setOnboarded(false);
-    toast.success('Data cleared');
+    enqueueSnackbar('Data cleared', { variant: 'success' });
     navigate('/onboarding');
   };
 
@@ -22,7 +28,7 @@ export default function SettingsPage() {
       title: 'Notifications',
       items: [
         {
-          icon: Bell,
+          icon: NotificationsIcon,
           label: 'Period Reminders',
           description: 'Get notified before your period',
           type: 'toggle' as const,
@@ -35,20 +41,20 @@ export default function SettingsPage() {
       title: 'Privacy',
       items: [
         {
-          icon: Lock,
+          icon: LockIcon,
           label: 'App Lock',
           description: 'Require passcode to open',
           type: 'toggle' as const,
           value: false,
-          onChange: () => toast.info('Coming soon!'),
+          onChange: () => enqueueSnackbar('Coming soon!', { variant: 'info' }),
         },
         {
-          icon: Moon,
+          icon: DarkModeIcon,
           label: 'Discreet Mode',
           description: 'Hide sensitive notifications',
           type: 'toggle' as const,
           value: false,
-          onChange: () => toast.info('Coming soon!'),
+          onChange: () => enqueueSnackbar('Coming soon!', { variant: 'info' }),
         },
       ],
     },
@@ -56,14 +62,14 @@ export default function SettingsPage() {
       title: 'Data',
       items: [
         {
-          icon: Download,
+          icon: DownloadIcon,
           label: 'Export Data',
           description: 'Download your health data',
           type: 'link' as const,
-          onClick: () => toast.info('Coming soon!'),
+          onClick: () => enqueueSnackbar('Coming soon!', { variant: 'info' }),
         },
         {
-          icon: Trash2,
+          icon: DeleteIcon,
           label: 'Clear All Data',
           description: 'Delete all your data permanently',
           type: 'danger' as const,
@@ -75,96 +81,146 @@ export default function SettingsPage() {
 
   return (
     <MobileLayout>
-      <div className="px-4 pt-6 pb-6 space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Settings</h1>
-          <p className="text-muted-foreground">Customize your experience</p>
-        </div>
+      <Box sx={{ px: 2, pt: 3, pb: 3 }}>
+        <Box sx={{ mb: 3 }}>
+          <Typography variant="h5" fontWeight={700} color="text.primary">
+            Settings
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            Customize your experience
+          </Typography>
+        </Box>
 
         {/* Cycle Settings */}
-        <Card className="border-0 shadow-sm">
-          <CardContent className="p-4">
-            <h3 className="font-semibold text-foreground mb-4">Cycle Settings</h3>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium text-foreground">Cycle Length</p>
-                  <p className="text-sm text-muted-foreground">Average days</p>
-                </div>
-                <span className="text-lg font-bold text-primary">{settings.averageCycleLength}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium text-foreground">Period Length</p>
-                  <p className="text-sm text-muted-foreground">Average days</p>
-                </div>
-                <span className="text-lg font-bold text-primary">{settings.averagePeriodLength}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium text-foreground">Goal</p>
-                  <p className="text-sm text-muted-foreground">Your tracking focus</p>
-                </div>
-                <span className="text-sm font-medium text-muted-foreground capitalize">{settings.goal}</span>
-              </div>
-            </div>
+        <Card sx={{ mb: 2 }}>
+          <CardContent sx={{ p: 2 }}>
+            <Typography variant="h6" fontWeight={600} color="text.primary" sx={{ mb: 2 }}>
+              Cycle Settings
+            </Typography>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <Box>
+                  <Typography variant="body1" fontWeight={500} color="text.primary">
+                    Cycle Length
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Average days
+                  </Typography>
+                </Box>
+                <Typography variant="h6" fontWeight={700} color="primary.main">
+                  {settings.averageCycleLength}
+                </Typography>
+              </Box>
+              <Divider />
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <Box>
+                  <Typography variant="body1" fontWeight={500} color="text.primary">
+                    Period Length
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Average days
+                  </Typography>
+                </Box>
+                <Typography variant="h6" fontWeight={700} color="primary.main">
+                  {settings.averagePeriodLength}
+                </Typography>
+              </Box>
+              <Divider />
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <Box>
+                  <Typography variant="body1" fontWeight={500} color="text.primary">
+                    Goal
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Your tracking focus
+                  </Typography>
+                </Box>
+                <Typography variant="body2" fontWeight={500} color="text.secondary" textTransform="capitalize">
+                  {settings.goal}
+                </Typography>
+              </Box>
+            </Box>
           </CardContent>
         </Card>
 
         {/* Settings Groups */}
         {settingsGroups.map((group) => (
-          <Card key={group.title} className="border-0 shadow-sm">
-            <CardContent className="p-4">
-              <h3 className="font-semibold text-foreground mb-4">{group.title}</h3>
-              <div className="space-y-4">
-                {group.items.map((item) => (
-                  <div
-                    key={item.label}
-                    className="flex items-center justify-between"
-                    onClick={item.type === 'link' || item.type === 'danger' ? item.onClick : undefined}
-                    role={item.type === 'link' || item.type === 'danger' ? 'button' : undefined}
-                    tabIndex={item.type === 'link' || item.type === 'danger' ? 0 : undefined}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                        item.type === 'danger' ? 'bg-destructive/10' : 'bg-muted'
-                      }`}>
-                        <item.icon className={`w-5 h-5 ${
-                          item.type === 'danger' ? 'text-destructive' : 'text-muted-foreground'
-                        }`} />
-                      </div>
-                      <div>
-                        <p className={`font-medium ${
-                          item.type === 'danger' ? 'text-destructive' : 'text-foreground'
-                        }`}>
-                          {item.label}
-                        </p>
-                        <p className="text-sm text-muted-foreground">{item.description}</p>
-                      </div>
-                    </div>
-                    {item.type === 'toggle' && (
-                      <Switch checked={item.value} onCheckedChange={item.onChange} />
-                    )}
-                    {(item.type === 'link' || item.type === 'danger') && (
-                      <ChevronRight className="w-5 h-5 text-muted-foreground" />
-                    )}
-                  </div>
+          <Card key={group.title} sx={{ mb: 2 }}>
+            <CardContent sx={{ p: 2 }}>
+              <Typography variant="h6" fontWeight={600} color="text.primary" sx={{ mb: 2 }}>
+                {group.title}
+              </Typography>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                {group.items.map((item, index) => (
+                  <Box key={item.label}>
+                    <Box
+                      onClick={item.type === 'link' || item.type === 'danger' ? item.onClick : undefined}
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        cursor: item.type === 'link' || item.type === 'danger' ? 'pointer' : 'default',
+                      }}
+                    >
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                        <Avatar
+                          sx={{
+                            width: 40,
+                            height: 40,
+                            bgcolor: item.type === 'danger' ? 'error.light' : 'action.hover',
+                          }}
+                        >
+                          <item.icon
+                            sx={{
+                              fontSize: 20,
+                              color: item.type === 'danger' ? 'error.main' : 'text.secondary',
+                            }}
+                          />
+                        </Avatar>
+                        <Box>
+                          <Typography
+                            variant="body1"
+                            fontWeight={500}
+                            color={item.type === 'danger' ? 'error.main' : 'text.primary'}
+                          >
+                            {item.label}
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary">
+                            {item.description}
+                          </Typography>
+                        </Box>
+                      </Box>
+                      {item.type === 'toggle' && (
+                        <Switch checked={item.value} onChange={item.onChange} color="primary" />
+                      )}
+                      {(item.type === 'link' || item.type === 'danger') && (
+                        <ChevronRightIcon sx={{ color: 'text.secondary' }} />
+                      )}
+                    </Box>
+                    {index < group.items.length - 1 && <Divider sx={{ mt: 2 }} />}
+                  </Box>
                 ))}
-              </div>
+              </Box>
             </CardContent>
           </Card>
         ))}
 
         {/* App Info */}
-        <div className="text-center pt-4">
-          <div className="flex items-center justify-center gap-2 mb-2">
-            <Flower2 className="w-5 h-5 text-primary" />
-            <span className="font-semibold text-foreground">Flora</span>
-          </div>
-          <p className="text-sm text-muted-foreground">Version 1.0.0</p>
-          <p className="text-xs text-muted-foreground mt-1">Your cycle, your data, your privacy.</p>
-        </div>
-      </div>
+        <Box sx={{ textAlign: 'center', pt: 2 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 1 }}>
+            <LocalFloristIcon sx={{ color: 'primary.main', fontSize: 20 }} />
+            <Typography variant="h6" fontWeight={600} color="text.primary">
+              Flora
+            </Typography>
+          </Box>
+          <Typography variant="body2" color="text.secondary">
+            Version 1.0.0
+          </Typography>
+          <Typography variant="caption" color="text.secondary">
+            Your cycle, your data, your privacy.
+          </Typography>
+        </Box>
+      </Box>
     </MobileLayout>
   );
 }
