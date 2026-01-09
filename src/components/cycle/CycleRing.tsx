@@ -1,5 +1,7 @@
 import { useMemo } from 'react';
+import { Box, Typography, Chip } from '@mui/material';
 import type { CyclePhase } from '@/types/cycle';
+import { cyclePhaseColors } from '@/theme/muiTheme';
 
 interface CycleRingProps {
   dayInCycle: number;
@@ -7,13 +9,6 @@ interface CycleRingProps {
   currentPhase: CyclePhase;
   periodLength: number;
 }
-
-const phaseColors: Record<CyclePhase, string> = {
-  menstruation: 'hsl(var(--primary))',
-  follicular: 'hsl(var(--chart-3))',
-  ovulation: 'hsl(var(--chart-2))',
-  luteal: 'hsl(var(--chart-4))',
-};
 
 const phaseLabels: Record<CyclePhase, string> = {
   menstruation: 'Period',
@@ -38,37 +33,40 @@ export function CycleRing({ dayInCycle, cycleLength, currentPhase, periodLength 
   }, [cycleLength, periodLength]);
 
   return (
-    <div className="relative w-52 h-52 mx-auto">
-      <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+    <Box sx={{ position: 'relative', width: 208, height: 208, mx: 'auto' }}>
+      <svg
+        style={{ width: '100%', height: '100%', transform: 'rotate(-90deg)' }}
+        viewBox="0 0 100 100"
+      >
         {/* Background segments */}
-        {phases.map((segment, index) => {
+        {phases.map((segment) => {
           const startAngle = segment.start * 360;
           const endAngle = segment.end * 360;
           const sweepAngle = endAngle - startAngle;
-          
+
           const startRad = (startAngle * Math.PI) / 180;
           const endRad = (endAngle * Math.PI) / 180;
-          
+
           const x1 = 50 + 45 * Math.cos(startRad);
           const y1 = 50 + 45 * Math.sin(startRad);
           const x2 = 50 + 45 * Math.cos(endRad);
           const y2 = 50 + 45 * Math.sin(endRad);
-          
+
           const largeArcFlag = sweepAngle > 180 ? 1 : 0;
 
           return (
             <path
               key={segment.phase}
               d={`M 50 50 L ${x1} ${y1} A 45 45 0 ${largeArcFlag} 1 ${x2} ${y2} Z`}
-              fill={phaseColors[segment.phase]}
+              fill={cyclePhaseColors[segment.phase]}
               opacity={segment.phase === currentPhase ? 1 : 0.3}
-              className="transition-opacity duration-300"
+              style={{ transition: 'opacity 0.3s' }}
             />
           );
         })}
 
         {/* Inner circle */}
-        <circle cx="50" cy="50" r="35" fill="hsl(var(--card))" />
+        <circle cx="50" cy="50" r="35" fill="hsl(0, 0%, 98%)" />
 
         {/* Progress indicator */}
         <circle
@@ -76,27 +74,43 @@ export function CycleRing({ dayInCycle, cycleLength, currentPhase, periodLength 
           cy="50"
           r="45"
           fill="none"
-          stroke="hsl(var(--foreground))"
+          stroke="hsl(240, 5%, 10%)"
           strokeWidth="2"
           strokeDasharray={circumference}
           strokeDashoffset={strokeDashoffset}
           strokeLinecap="round"
-          className="transition-all duration-500"
+          style={{ transition: 'all 0.5s' }}
         />
       </svg>
 
       {/* Center content */}
-      <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="text-4xl font-bold text-foreground">{dayInCycle}</span>
-        <span className="text-sm text-muted-foreground font-medium">Day of cycle</span>
-        <span className="mt-2 px-3 py-1 rounded-full text-xs font-semibold" 
-          style={{ 
-            backgroundColor: `${phaseColors[currentPhase]}20`,
-            color: phaseColors[currentPhase]
-          }}>
-          {phaseLabels[currentPhase]}
-        </span>
-      </div>
-    </div>
+      <Box
+        sx={{
+          position: 'absolute',
+          inset: 0,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <Typography variant="h2" fontWeight={700} color="text.primary">
+          {dayInCycle}
+        </Typography>
+        <Typography variant="body2" color="text.secondary" fontWeight={500}>
+          Day of cycle
+        </Typography>
+        <Chip
+          label={phaseLabels[currentPhase]}
+          size="small"
+          sx={{
+            mt: 1,
+            bgcolor: `${cyclePhaseColors[currentPhase]}20`,
+            color: cyclePhaseColors[currentPhase],
+            fontWeight: 600,
+          }}
+        />
+      </Box>
+    </Box>
   );
 }

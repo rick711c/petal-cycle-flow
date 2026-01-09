@@ -1,54 +1,93 @@
-import { useLocation, Link } from 'react-router-dom';
-import { Home, Calendar, Plus, BarChart3, Settings } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { useLocation, useNavigate } from 'react-router-dom';
+import {
+  Box,
+  BottomNavigation,
+  BottomNavigationAction,
+  Fab,
+  Paper,
+} from '@mui/material';
+import HomeIcon from '@mui/icons-material/Home';
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import AddIcon from '@mui/icons-material/Add';
+import InsightsIcon from '@mui/icons-material/Insights';
+import SettingsIcon from '@mui/icons-material/Settings';
 
 const navItems = [
-  { icon: Home, label: 'Home', path: '/' },
-  { icon: Calendar, label: 'Calendar', path: '/calendar' },
-  { icon: Plus, label: 'Log', path: '/log', isCenter: true },
-  { icon: BarChart3, label: 'Insights', path: '/insights' },
-  { icon: Settings, label: 'Settings', path: '/settings' },
+  { icon: <HomeIcon />, label: 'Home', path: '/' },
+  { icon: <CalendarMonthIcon />, label: 'Calendar', path: '/calendar' },
+  { icon: <AddIcon />, label: 'Log', path: '/log', isCenter: true },
+  { icon: <InsightsIcon />, label: 'Insights', path: '/insights' },
+  { icon: <SettingsIcon />, label: 'Settings', path: '/settings' },
 ];
 
 export function BottomNav() {
   const location = useLocation();
+  const navigate = useNavigate();
+  
+  const currentValue = navItems.findIndex(item => item.path === location.pathname);
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-card border-t border-border shadow-lg">
-      <div className="flex items-center justify-around py-2">
-        {navItems.map((item) => {
-          const isActive = location.pathname === item.path;
-          const Icon = item.icon;
-
+    <Paper
+      sx={{
+        position: 'fixed',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        maxWidth: 'md',
+        mx: 'auto',
+        zIndex: 1000,
+      }}
+      elevation={3}
+    >
+      <BottomNavigation
+        value={currentValue}
+        onChange={(_, newValue) => {
+          navigate(navItems[newValue].path);
+        }}
+        showLabels
+        sx={{ 
+          height: 64,
+          '& .MuiBottomNavigationAction-root': {
+            minWidth: 60,
+          },
+        }}
+      >
+        {navItems.map((item, index) => {
           if (item.isCenter) {
             return (
-              <Link
+              <Box
                 key={item.path}
-                to={item.path}
-                className="relative -mt-6"
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  px: 1,
+                }}
               >
-                <div className="w-14 h-14 rounded-full bg-primary flex items-center justify-center shadow-lg hover:scale-105 transition-transform">
-                  <Icon className="w-6 h-6 text-primary-foreground" />
-                </div>
-              </Link>
+                <Fab
+                  color="primary"
+                  size="medium"
+                  onClick={() => navigate(item.path)}
+                  sx={{
+                    mt: -3,
+                    width: 56,
+                    height: 56,
+                  }}
+                >
+                  {item.icon}
+                </Fab>
+              </Box>
             );
           }
-
           return (
-            <Link
+            <BottomNavigationAction
               key={item.path}
-              to={item.path}
-              className={cn(
-                'flex flex-col items-center py-2 px-3 rounded-xl transition-colors',
-                isActive ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
-              )}
-            >
-              <Icon className="w-5 h-5" />
-              <span className="text-xs mt-1 font-medium">{item.label}</span>
-            </Link>
+              label={item.label}
+              icon={item.icon}
+            />
           );
         })}
-      </div>
-    </nav>
+      </BottomNavigation>
+    </Paper>
   );
 }
